@@ -1,8 +1,6 @@
 # OAKD - Open Access Knowledge Distiller
 
-Transform research papers and technical documents into structured, verifiable knowledge graphs.
-
-**Production-grade structured knowledge engine with epistemic stability guarantees, security hardening, and regulatory compliance.**
+A production-grade structured knowledge engine that transforms research papers and technical documents into structured, verifiable knowledge graphs with epistemic stability guarantees, security hardening, and regulatory compliance.
 
 ## Overview
 
