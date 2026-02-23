@@ -2,21 +2,43 @@
 
 Transform research papers and technical documents into structured, verifiable knowledge graphs.
 
-**A structured knowledge engine with epistemic stability guarantees.**
+**Production-grade structured knowledge engine with epistemic stability guarantees, security hardening, and regulatory compliance.**
 
 ## Overview
 
-OAKD (Open Access Knowledge Distiller) is not just a PDF parser—it's a **structured knowledge engine** that provides comprehensive epistemic stability guarantees. It extracts structured knowledge from research papers and technical documents with complete provenance tracking, deterministic processing, and formal invariant enforcement.
+OAKD (Open Access Knowledge Distiller) is a **production-grade structured knowledge engine** designed for adversarial environments and regulatory scrutiny. It extracts structured knowledge from research papers with complete provenance tracking, deterministic processing, formal invariant enforcement, security hardening, and compliance controls.
 
 ### Key Differentiators
 
+**Epistemic Stability:**
 - ✅ **Deterministic Processing**: Same input → same graph (under same version)
-- ✅ **Complete Provenance**: Every element traces back to source document
+- ✅ **Complete Provenance**: Every element traces back to source document via hash chains
 - ✅ **Formal Invariants**: Enforced guarantees about knowledge integrity
 - ✅ **Checkpoint/Replay**: Resume failed pipelines, replay executions
 - ✅ **Version Management**: Backward-compatible scoring models and graph schemas
 - ✅ **Graph Diffing**: Compare knowledge graphs across versions
 - ✅ **Score Drift Detection**: Track confidence score stability over time
+
+**Production Security:**
+- 🔒 **Input Validation**: Path traversal protection, file type whitelisting, size limits
+- 🔒 **Audit Logging**: Tamper-evident logs with cryptographic hash chains and HMAC
+- 🔒 **Rate Limiting**: Token bucket algorithm for DoS protection
+- 🔒 **Resource Protection**: Memory, CPU, and concurrency limits
+- 🔒 **PII Detection**: Automatic detection and masking of personal information
+- 🔒 **Circuit Breakers**: Fault isolation to prevent cascading failures
+
+**Regulatory Compliance:**
+- 📋 **GDPR Controls**: Data subject rights (access, erasure, portability)
+- 📋 **Consent Management**: Lawful basis tracking and consent records
+- 📋 **Data Retention**: Policy-driven retention with automatic enforcement
+- 📋 **Data Minimization**: Purpose-limited data collection
+- 📋 **Compliance Reporting**: Automated audit reports for regulators
+
+**Operational Excellence:**
+- 📊 **Performance Metrics**: Throughput, latency percentiles, error rates
+- 📊 **Health Monitoring**: Resource usage, component health, liveness probes
+- 📊 **SLA Tracking**: Availability, latency, error rate compliance
+- 📊 **Alerting**: Deduplication, severity levels, notification callbacks
 
 ### Use Cases
 
@@ -99,33 +121,74 @@ print(f"Claims: {len(results['claims'])}")
 print(f"High-confidence claims: {len(results['high_confidence_claims'])}")
 ```
 
-### Epistemic Pipeline (Recommended)
+### Production Pipeline (Recommended)
 
-For production use with full guarantees:
+For production use with full security, compliance, and epistemic guarantees:
 
 ```python
 from oakd import EpistemicPipeline
 
-# Initialize with epistemic guarantees
+# Initialize production-grade pipeline
 pipeline = EpistemicPipeline(
     config_path='config.yaml',
+
+    # Epistemic stability
     enable_checkpoints=True,    # Checkpoint/replay capability
     enable_validation=True,     # Invariant enforcement
-    enable_provenance=True      # Complete provenance tracking
+    enable_provenance=True,     # Complete provenance tracking
+
+    # Security hardening
+    enable_security=True,       # Input validation, audit logging, rate limiting
+    allowed_directories={'/var/oakd/documents'},  # File access whitelist
+    audit_log_path='/var/log/oakd/audit.log',
+
+    # Compliance controls
+    enable_compliance=True,     # GDPR, data retention, consent management
+    compliance_dir='/var/oakd/compliance',
+
+    # Operational monitoring
+    enable_monitoring=True,     # Metrics, health checks, SLA tracking
+
+    # Session tracking
+    session_id='prod_session_123',
+    user_id='researcher_456'
 )
 
 # Process with full guarantees
 results = pipeline.process_deterministic(
-    pdf_path='research_paper.pdf',
-    output_path='knowledge_graph.gexf'
+    pdf_path='/var/oakd/documents/research_paper.pdf',
+    output_path='/var/oakd/output/knowledge_graph.json'
 )
 
 # Access epistemic metadata
-print(f"Graph hash: {results['graph_hash']}")
-print(f"System version: {results['system_version']}")
-print(f"Validation: {results['validation_report'].passed}")
-print(f"Provenance entries: {len(results['provenance_chain']['provenance_chain'])}")
+print(f"Document Hash: {results['document_hash']}")
+print(f"Execution ID: {results['execution_id']}")
+print(f"Validation: {results['validation_report'].get_summary()}")
+
+# Check system health
+health = pipeline.health_monitor.check_health()
+print(f"System Status: {health['status']}")
+
+# Verify audit log integrity
+if pipeline.audit_logger.verify_integrity():
+    print("✅ Audit log intact")
+else:
+    print("🚨 CRITICAL: Audit log tampered!")
+
+# Get performance metrics
+metrics = pipeline.metrics.get_percentiles('document_parsing_ms', percentiles=[50, 95, 99])
+print(f"P95 Latency: {metrics[95]:.1f} ms")
+
+# Check SLA compliance
+sla = pipeline.sla_tracker.get_sla_compliance()
+print(f"Availability: {sla['availability']['current']:.2f}%")
 ```
+
+## Documentation
+
+- **[Epistemic Stability Guide](EPISTEMIC_STABILITY.md)** - Complete guide to provenance tracking, deterministic processing, checkpointing, graph diffing, and invariant validation
+- **[Production Security & Operations](PRODUCTION_SECURITY.md)** - Security hardening, compliance controls, monitoring, alerting, and incident response for production deployments
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - System architecture, design decisions, and RFC-grade technical specifications
 
 ## Usage Examples
 

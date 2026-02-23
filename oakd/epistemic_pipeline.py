@@ -12,6 +12,7 @@ Integrates:
 import time
 from pathlib import Path
 from typing import Optional, Dict, Any
+from datetime import datetime
 
 from .pipeline import KnowledgeDistillationPipeline
 from .epistemic_stability import (
@@ -24,6 +25,30 @@ from .epistemic_stability import (
 from .checkpoint import CheckpointManager, PipelineStage
 from .graph_diff import GraphDiffer
 from .invariants import InvariantValidator
+from .security import (
+    InputValidator,
+    AuditLogger,
+    RateLimiter,
+    DataPrivacyController,
+    ResourceLimiter,
+    AuditEventType,
+    SecurityLevel
+)
+from .monitoring import (
+    MetricsCollector,
+    HealthMonitor,
+    ResourceMonitor,
+    SLATracker,
+    AlertManager,
+    CircuitBreaker,
+    HealthStatus
+)
+from .compliance import (
+    ComplianceController,
+    DataMinimizer,
+    DataCategory,
+    ProcessingPurpose
+)
 
 
 class EpistemicPipeline(KnowledgeDistillationPipeline):
@@ -42,25 +67,47 @@ class EpistemicPipeline(KnowledgeDistillationPipeline):
         self,
         config_path: Optional[str] = None,
         checkpoint_dir: str = ".oakd_checkpoints",
+        audit_log_path: str = ".oakd_audit/audit.log",
+        compliance_dir: str = ".oakd_compliance",
         enable_checkpoints: bool = True,
         enable_validation: bool = True,
-        enable_provenance: bool = True
+        enable_provenance: bool = True,
+        enable_security: bool = True,
+        enable_monitoring: bool = True,
+        enable_compliance: bool = True,
+        allowed_directories: Optional[set] = None,
+        session_id: str = "default",
+        user_id: str = "system"
     ):
         """
-        Initialize epistemic pipeline.
+        Initialize production-grade epistemic pipeline.
 
         Args:
             config_path: Path to YAML configuration
             checkpoint_dir: Directory for checkpoints
+            audit_log_path: Path to audit log file
+            compliance_dir: Directory for compliance records
             enable_checkpoints: Enable checkpoint/replay
             enable_validation: Enable invariant validation
             enable_provenance: Enable provenance tracking
+            enable_security: Enable security hardening
+            enable_monitoring: Enable operational monitoring
+            enable_compliance: Enable compliance controls
+            allowed_directories: Whitelist of allowed directories for file access
+            session_id: Current session identifier
+            user_id: Current user identifier
         """
         super().__init__(config_path)
 
         self.enable_checkpoints = enable_checkpoints
         self.enable_validation = enable_validation
         self.enable_provenance = enable_provenance
+        self.enable_security = enable_security
+        self.enable_monitoring = enable_monitoring
+        self.enable_compliance = enable_compliance
+
+        self.session_id = session_id
+        self.user_id = user_id
 
         # Initialize epistemic stability components
         self.provenance_tracker = ProvenanceTracker(system_version="1.0.0") if enable_provenance else None
@@ -70,10 +117,93 @@ class EpistemicPipeline(KnowledgeDistillationPipeline):
         self.drift_detector = ScoreDriftDetector(tolerance=0.01)
         self.graph_differ = GraphDiffer()
 
+        # Initialize security components
+        if enable_security:
+            self.input_validator = InputValidator(allowed_directories=allowed_directories)
+            self.audit_logger = AuditLogger(audit_log_path)
+            self.rate_limiter = RateLimiter(max_requests=100, time_window=60)
+            self.privacy_controller = DataPrivacyController(enable_pii_detection=True)
+            self.resource_limiter = ResourceLimiter(
+                max_memory_mb=4096,
+                max_cpu_seconds=3600,
+                max_concurrent=10
+            )
+        else:
+            self.input_validator = None
+            self.audit_logger = None
+            self.rate_limiter = None
+            self.privacy_controller = None
+            self.resource_limiter = None
+
+        # Initialize monitoring components
+        if enable_monitoring:
+            self.metrics = MetricsCollector(window_size=10000)
+            self.health_monitor = HealthMonitor()
+            self.resource_monitor = ResourceMonitor()
+            self.sla_tracker = SLATracker(
+                target_availability=99.9,
+                target_p95_latency_ms=5000.0,
+                target_error_rate=0.01
+            )
+            self.alert_manager = AlertManager()
+            self.circuit_breaker = CircuitBreaker(
+                failure_threshold=5,
+                recovery_timeout=60.0
+            )
+
+            # Register health checks
+            self._register_health_checks()
+        else:
+            self.metrics = None
+            self.health_monitor = None
+            self.resource_monitor = None
+            self.sla_tracker = None
+            self.alert_manager = None
+            self.circuit_breaker = None
+
+        # Initialize compliance components
+        if enable_compliance:
+            self.compliance_controller = ComplianceController(compliance_dir)
+            self.data_minimizer = DataMinimizer()
+
+            # Register data minimization rules
+            self.data_minimizer.register_purpose(
+                "research",
+                {'title', 'authors', 'claims', 'citations', 'confidence_scores'}
+            )
+        else:
+            self.compliance_controller = None
+            self.data_minimizer = None
+
         # Track versions
         self.system_version = "1.0.0"
         self.scoring_version = CURRENT_SCORING_VERSION
         self.graph_schema = CURRENT_GRAPH_SCHEMA
+
+    def _register_health_checks(self):
+        """Register system health checks"""
+        if not self.health_monitor:
+            return
+
+        # Resource health check
+        def check_resources():
+            return self.resource_monitor.check_resource_limits(
+                max_cpu_percent=85.0,
+                max_memory_percent=85.0,
+                max_disk_percent=90.0
+            )
+
+        self.health_monitor.register_check("resources", check_resources)
+
+        # Audit log integrity check
+        if self.audit_logger:
+            def check_audit_integrity():
+                if self.audit_logger.verify_integrity():
+                    return HealthStatus.HEALTHY, "Audit log intact", {}
+                else:
+                    return HealthStatus.CRITICAL, "Audit log tampered", {}
+
+            self.health_monitor.register_check("audit_integrity", check_audit_integrity)
 
     def process_deterministic(
         self,
@@ -82,7 +212,24 @@ class EpistemicPipeline(KnowledgeDistillationPipeline):
         baseline_graph: Optional[Any] = None
     ) -> Dict[str, Any]:
         """
-        Process PDF with full epistemic guarantees.
+        Process PDF with full production-grade epistemic guarantees.
+
+        Security hardening:
+        - Input validation and sanitization
+        - Rate limiting
+        - Resource exhaustion protection
+        - Audit logging
+
+        Operational excellence:
+        - Performance metrics
+        - Health monitoring
+        - SLA tracking
+        - Circuit breaker protection
+
+        Compliance:
+        - Data retention policies
+        - PII detection
+        - Data minimization
 
         Args:
             pdf_path: Path to PDF file
@@ -91,12 +238,86 @@ class EpistemicPipeline(KnowledgeDistillationPipeline):
 
         Returns:
             Results dictionary with epistemic metadata
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If circuit breaker is open or resource limits exceeded
         """
         execution_id = None
         start_time = time.time()
+        success = False
+        resource_acquired = False
 
-        if self.enable_checkpoints:
-            execution_id = self.checkpoint_manager.start_execution(pdf_path)
+        try:
+            # Security: Input validation
+            if self.enable_security:
+                # Validate file path
+                try:
+                    validated_path = self.input_validator.validate_file_path(pdf_path)
+                    pdf_path = validated_path
+                except ValueError as e:
+                    # Log security violation
+                    if self.audit_logger:
+                        self.audit_logger.log_event(
+                            event_type=AuditEventType.SECURITY_VIOLATION,
+                            user_id=self.user_id,
+                            session_id=self.session_id,
+                            resource_id=pdf_path,
+                            action="validate_input",
+                            result="failure",
+                            details={'error': str(e)}
+                        )
+                    raise
+
+                # Check rate limit
+                if not self.rate_limiter.check_rate_limit(self.user_id):
+                    if self.audit_logger:
+                        self.audit_logger.log_event(
+                            event_type=AuditEventType.SECURITY_VIOLATION,
+                            user_id=self.user_id,
+                            session_id=self.session_id,
+                            resource_id=pdf_path,
+                            action="rate_limit_check",
+                            result="failure",
+                            details={'reason': 'rate_limit_exceeded'}
+                        )
+                    raise Exception("Rate limit exceeded")
+
+                # Acquire resource slot
+                if not self.resource_limiter.acquire():
+                    if self.audit_logger:
+                        self.audit_logger.log_event(
+                            event_type=AuditEventType.SECURITY_VIOLATION,
+                            user_id=self.user_id,
+                            session_id=self.session_id,
+                            resource_id=pdf_path,
+                            action="resource_acquire",
+                            result="failure",
+                            details={'reason': 'resource_limit_exceeded'}
+                        )
+                    raise Exception("Resource limit exceeded - too many concurrent operations")
+
+                resource_acquired = True
+
+            # Monitoring: Circuit breaker protection
+            if self.enable_monitoring and self.circuit_breaker:
+                if self.circuit_breaker.state == 'open':
+                    raise Exception("Circuit breaker is OPEN - system in degraded state")
+
+            # Audit: Log document access
+            if self.enable_security and self.audit_logger:
+                self.audit_logger.log_event(
+                    event_type=AuditEventType.DOCUMENT_ACCESS,
+                    user_id=self.user_id,
+                    session_id=self.session_id,
+                    resource_id=pdf_path,
+                    action="process_document",
+                    result="in_progress",
+                    details={'execution_start': datetime.utcnow().isoformat() + 'Z'}
+                )
+
+            if self.enable_checkpoints:
+                execution_id = self.checkpoint_manager.start_execution(pdf_path)
 
         print(f"Processing document: {pdf_path}")
         print(f"  System Version: {self.system_version}")

@@ -3,7 +3,11 @@ OAKD - Open Access Knowledge Distiller
 
 Transform research papers and technical documents into structured, verifiable knowledge graphs.
 
-A structured knowledge engine with epistemic stability guarantees.
+A production-grade structured knowledge engine with:
+- Epistemic stability guarantees
+- Security hardening for adversarial environments
+- Regulatory compliance controls
+- Operational excellence monitoring
 """
 
 __version__ = "1.0.0"
@@ -47,6 +51,45 @@ from .invariants import (
     InvariantViolation
 )
 
+# Security and compliance modules
+from .security import (
+    InputValidator,
+    AuditLogger,
+    RateLimiter,
+    DataPrivacyController,
+    ResourceLimiter,
+    AuditEventType,
+    AuditLogEntry,
+    SecurityLevel
+)
+from .compliance import (
+    ComplianceController,
+    DataMinimizer,
+    DataRetentionPolicy,
+    ConsentRecord,
+    DataSubjectRequest,
+    DataCategory,
+    ProcessingPurpose,
+    DataSubjectRight
+)
+
+# Monitoring and operational modules
+from .monitoring import (
+    MetricsCollector,
+    HealthMonitor,
+    ResourceMonitor,
+    SLATracker,
+    AlertManager,
+    CircuitBreaker,
+    HealthStatus,
+    HealthCheck,
+    Metric,
+    MetricType
+)
+
+# Enhanced pipeline
+from .epistemic_pipeline import EpistemicPipeline
+
 __all__ = [
     # Core components
     "DocumentParser",
@@ -81,4 +124,36 @@ __all__ = [
     "InvariantValidator",
     "ValidationReport",
     "InvariantViolation",
+    # Security
+    "InputValidator",
+    "AuditLogger",
+    "RateLimiter",
+    "DataPrivacyController",
+    "ResourceLimiter",
+    "AuditEventType",
+    "AuditLogEntry",
+    "SecurityLevel",
+    # Compliance
+    "ComplianceController",
+    "DataMinimizer",
+    "DataRetentionPolicy",
+    "ConsentRecord",
+    "DataSubjectRequest",
+    "DataCategory",
+    "ProcessingPurpose",
+    "DataSubjectRight",
+    # Monitoring
+    "MetricsCollector",
+    "HealthMonitor",
+    "ResourceMonitor",
+    "SLATracker",
+    "AlertManager",
+    "CircuitBreaker",
+    "HealthStatus",
+    "HealthCheck",
+    "Metric",
+    "MetricType",
+    # Enhanced pipeline
+    "EpistemicPipeline",
 ]
+
