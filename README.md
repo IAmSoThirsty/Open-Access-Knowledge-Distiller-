@@ -2,14 +2,28 @@
 
 Transform research papers and technical documents into structured, verifiable knowledge graphs.
 
+**A structured knowledge engine with epistemic stability guarantees.**
+
 ## Overview
 
-OAKD (Open Access Knowledge Distiller) is a Python-based system designed to extract structured knowledge from research papers and technical documents. It parses PDFs, extracts claims and citations, scores confidence, and builds interconnected knowledge graphs suitable for:
+OAKD (Open Access Knowledge Distiller) is not just a PDF parser—it's a **structured knowledge engine** that provides comprehensive epistemic stability guarantees. It extracts structured knowledge from research papers and technical documents with complete provenance tracking, deterministic processing, and formal invariant enforcement.
 
-- **Scientific transparency**: Verify and trace research claims
-- **Policy research analysis**: Extract evidence from policy documents
-- **Legislative drafting assistance**: Support evidence-based policymaking
-- **Public-access research synthesis**: Make research more accessible and interconnected
+### Key Differentiators
+
+- ✅ **Deterministic Processing**: Same input → same graph (under same version)
+- ✅ **Complete Provenance**: Every element traces back to source document
+- ✅ **Formal Invariants**: Enforced guarantees about knowledge integrity
+- ✅ **Checkpoint/Replay**: Resume failed pipelines, replay executions
+- ✅ **Version Management**: Backward-compatible scoring models and graph schemas
+- ✅ **Graph Diffing**: Compare knowledge graphs across versions
+- ✅ **Score Drift Detection**: Track confidence score stability over time
+
+### Use Cases
+
+- **Scientific transparency**: Verify and trace research claims with provenance
+- **Policy research analysis**: Extract evidence with complete audit trails
+- **Legislative drafting assistance**: Evidence-based policymaking with confidence scores
+- **Public-access research synthesis**: Reproducible knowledge graph construction
 
 ## Core Components
 
@@ -65,6 +79,8 @@ pip install -r requirements.txt
 
 ## Quick Start
 
+### Basic Usage
+
 ```python
 from oakd import KnowledgeDistillationPipeline
 
@@ -81,6 +97,34 @@ results = pipeline.process(
 print(f"Title: {results['parsed_document'].title}")
 print(f"Claims: {len(results['claims'])}")
 print(f"High-confidence claims: {len(results['high_confidence_claims'])}")
+```
+
+### Epistemic Pipeline (Recommended)
+
+For production use with full guarantees:
+
+```python
+from oakd import EpistemicPipeline
+
+# Initialize with epistemic guarantees
+pipeline = EpistemicPipeline(
+    config_path='config.yaml',
+    enable_checkpoints=True,    # Checkpoint/replay capability
+    enable_validation=True,     # Invariant enforcement
+    enable_provenance=True      # Complete provenance tracking
+)
+
+# Process with full guarantees
+results = pipeline.process_deterministic(
+    pdf_path='research_paper.pdf',
+    output_path='knowledge_graph.gexf'
+)
+
+# Access epistemic metadata
+print(f"Graph hash: {results['graph_hash']}")
+print(f"System version: {results['system_version']}")
+print(f"Validation: {results['validation_report'].passed}")
+print(f"Provenance entries: {len(results['provenance_chain']['provenance_chain'])}")
 ```
 
 ## Usage Examples
